@@ -1,0 +1,6 @@
+@BEforREACT_HostAddress = http://localhost:5201
+
+GET {{BEforREACT_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
