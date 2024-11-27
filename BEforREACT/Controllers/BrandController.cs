@@ -35,13 +35,13 @@ namespace BEforREACT.Controllers
             return Ok(brand);
         }
 
-        //// POST: api/Brand
-        //[HttpPost]
-        //public async Task<ActionResult<Brand>> CreateBrand(Brand brand)
-        //{
-        //    var createdBrand = await _brandService.CreateBrand(brand);
-        //    return CreatedAtAction(nameof(GetBrand), new { id = createdBrand.BrandID }, createdBrand);
-        //}
+        // POST: api/Brand
+        [HttpPost]
+        public async Task<ActionResult<Brand>> CreateBrand(Brand brand)
+        {
+            var createdBrand = await _brandService.CreateBrand(brand);
+            return CreatedAtAction(nameof(GetBrand), new { id = createdBrand.BrandID }, createdBrand);
+        }
 
         // PUT: api/Brand/{id}
         [HttpPut("{id}")]

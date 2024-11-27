@@ -24,23 +24,23 @@ namespace BEforREACT.Services
             return await _context.Brands.FindAsync(id);
         }
 
-        //public async Task<Brand> CreateBrand(Brand brand, List<Guid>? categoryIds = null)
-        //{
-        //    brand.BrandID = Guid.NewGuid();
+        public async Task<Brand> CreateBrand(Brand brand, List<Guid>? categoryIds = null)
+        {
+            brand.BrandID = Guid.NewGuid();
 
-        //    if (categoryIds != null && categoryIds.Any())
-        //    {
-        //        brand.CategoriesBrands = categoryIds.Select(id => new CategoriesBrand
-        //        {
-        //            CategoryID = id,
-        //            BrandID = brand.BrandID
-        //        }).ToList();
-        //    }
+            //if (categoryIds != null && categoryIds.Any())
+            //{
+            //    brand.CategoriesBrands = categoryIds.Select(id => new CategoriesBrand
+            //    {
+            //        CategoryID = id,
+            //        BrandID = brand.BrandID
+            //    }).ToList();
+            //}
 
-        //    _context.Brands.Add(brand);
-        //    await _context.SaveChangesAsync();
-        //    return brand;
-        //}
+            _context.Brands.Add(brand);
+            await _context.SaveChangesAsync();
+            return brand;
+        }
 
 
 
