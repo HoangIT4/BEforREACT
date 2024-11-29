@@ -1,5 +1,4 @@
-﻿using BEforREACT.DTOs;
-using BEforREACT.Services;
+﻿using BEforREACT.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BEforREACT.Controllers
@@ -15,94 +14,79 @@ namespace BEforREACT.Controllers
             _productServices = productServices;
         }
 
-        [HttpGet("all")]
+        //[HttpGet("all")]
         //[Authorize]
-        public async Task<IActionResult> GetAllProduct()
-        {
-            try
-            {
-                var productsItem = await _productServices.GetProduct();
-                return Ok(new
-                {
-                    status = "success",
-                    message = "get all products successfully",
-                    data = productsItem
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new
-                {
-                    status = "error",
-                    message = ex.Message
-                });
-            }
-        }
+        //    public async Task<ActionResult<List<Product>>> GetAllProducts()
+        //    {
+        //        try
+        //        {
+        //            var productsItem = await _productServices.GetAllProducts();
+        //            return Ok(new
+        //            {
+        //                status = "success",
+        //                message = "get all products successfully",
+        //                data = productsItem
+        //            });
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            return StatusCode(500, new
+        //            {
+        //                status = "error",
+        //                message = ex.Message
+        //            });
+        //        }
+        //    }
 
-        [HttpPost("AddProduct")]
-        public async Task<IActionResult> AddProduct([FromBody] ProductsDTO productDto)
-        {
-            //var productsDtos = new List<ProductsDTO>
-            //{
-            //    new ProductsDTO
-            //    {
-            //        ProductID = Guid.NewGuid(),
-            //        DetailID = Guid.NewGuid(),
-            //        Name = "Nước tẩy bồn cầu Vim Xanh biển 880ml",
-            //        Price = 38.000m,
-            //        Src = "https://u-shop.vn/images/thumbs/0015488_dau-tam-goi-clear-men-3-trong-1-active-clean-630g.png",
-            //        PreImg = "https://u-shop.vn/images/thumbs/0013455_dau-tam-goi-clear-men-3-trong-1-active-clean-630g.png",
-            //        Description = "Tóc Sạch Gàu - Dưỡng ẩm da đầu - Sảng khoái toàn thân",
-            //        detailDes = "Mô tả chi tiết về sản phẩm",
-            //        Stock = 100,
-            //        Rating = 4.5f
-            //    },
-            //    new ProductsDTO
-            //    {
-            //        ProductID = Guid.NewGuid(),
-            //        DetailID = Guid.NewGuid(),
-            //        Name = "Dầu tắm gội Clear Men 3 Trong 1 Active Clean 630g",
-            //        Price = 198000,
-            //        Src = "https://u-shop.vn/images/thumbs/0015488_dau-tam-goi-clear-men-3-trong-1-active-clean-630g.png",
-            //        PreImg = "https://u-shop.vn/images/thumbs/0013455_dau-tam-goi-clear-men-3-trong-1-active-clean-630g.png",
-            //        Description = "Tóc Sạch Gàu - Dưỡng ẩm da đầu - Sảng khoái toàn thân",
-            //        detailDes = "Mô tả chi tiết về sản phẩm",
-            //        Stock = 50,
-            //        Rating = 4.0f
-            //    }
-            //};
+        //    [HttpGet("{id}")]
+        //    public async Task<ActionResult<Product>> GetProductById(Guid id)
+        //    {
+        //        var product = await _productServices.GetProductById(id);
+        //        if (product == null)
+        //            return NotFound();
+        //        return Ok(product);
+        //    }
 
 
-            if (productDto == null)
-            {
-                return BadRequest(new
-                {
-                    status = "error",
-                    message = "Invalid product data."
-                });
-            }
-
-            try
-            {
-                var productsData = await _productServices.CreateProduct(productDto);
-
-                return Ok(new
-                {
-                    status = "success",
-                    data = productsData
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new
-                {
-                    status = "error",
-                    message = ex.Message
-                });
-            }
-        }
+        //    [HttpGet("category/{categoryId}")]
+        //    public async Task<ActionResult<List<Product>>> GetProductsByCategory(Guid categoryId)
+        //    {
+        //        var products = await _productServices.GetProductsByCategory(categoryId);
+        //        return Ok(products);
+        //    }
 
 
+        //    [HttpGet("brand/{brandId}")]
+        //    public async Task<ActionResult<List<Product>>> GetProductsByBrand(Guid brandId)
+        //    {
+        //        var products = await _productServices.GetProductsByBrand(brandId);
+        //        return Ok(products);
+        //    }
+        //    [HttpPost]
+        //    public async Task<ActionResult<Product>> AddProduct(Product product)
+        //    {
+        //        var newProduct = await _productServices.AddProductAsync(product);
+        //        return CreatedAtAction(nameof(GetProductById), new { status = "success", id = newProduct.ProductID }, newProduct);
+        //    }
 
+        //    [HttpPut("{id}")]
+        //    public async Task<ActionResult<Product>> UpdateProduct(Guid id, Product product)
+        //    {
+        //        var updatedProduct = await _productServices.UpdateProductAsync(id, product);
+        //        if (updatedProduct == null)
+        //            return NotFound();
+        //        return Ok(updatedProduct);
+        //    }
+
+        //    [HttpDelete("{id}")]
+        //    public async Task<ActionResult> DeleteProduct(Guid id)
+        //    {
+        //        var result = await _productServices.DeleteProductAsync(id);
+        //        if (!result)
+        //            return NotFound();
+        //        return NoContent();
+        //    }
+
+        //}
     }
 }

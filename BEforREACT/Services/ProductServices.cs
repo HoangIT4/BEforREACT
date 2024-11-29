@@ -1,5 +1,4 @@
 ﻿using BEforREACT.Data;
-using BEforREACT.Data.Entities;
 using BEforREACT.DTOs;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,66 +12,64 @@ namespace BEforREACT.Services
             _context = context;
 
         }
-
-        public async Task<List<ProductsDTO>> GetProduct()
+        public async Task<List<ProductItemViewDTO>> GetProductItemsAsync()
         {
+            var products = await _context.Products
+            .Include(p => p.Detail) // Bao gồm thông tin chi tiết từ bảng ProductDetail
+            .ToListAsync();
 
-            var productItems = await (from product in _context.Products
-                                      join detail in _context.ProductDetails
-                                      on product.DetailID equals detail.DetailID
-                                      select new ProductsDTO
-                                      {
-                                          ProductID = product.ProductID,
-                                          DetailID = detail.DetailID,
-                                          Name = product.Name,
-                                          Src = product.Src,
-                                          PreImg = product.PreImg,
-                                          detailDes = detail.detailDes,
-                                          Description = product.Description,
-                                          Price = detail.Price,
-                                          Stock = detail.Stock,
-                                          Rating = detail.Rating,
-                                          //CategoryID = detail.CategoryID,
-                                          //BrandID = detail.BrandID
-                                      }).ToListAsync();
+            var result = products.Select(p => new ProductItemViewDTO
+            {
+                ProductID = p.ProductID,
+                Name = p.Name,
+                Src = p.Src,
+                PreImg = p.PreImg,
+                Price = p.Detail?.Price ?? 0
+            }).ToList();
 
-
-
-            return productItems;
+            return result;
         }
 
 
-        public async Task<ProductsDTO> CreateProduct(ProductsDTO productDto)
-        {
-            var productDetail = new ProductDetail
-            {
-                DetailID = Guid.NewGuid(),
-                //CategoryID = productDto.CategoryID,
-                //BrandID = productDto.BrandID,
-                Price = productDto.Price,
-                Stock = productDto.Stock,
-                Rating = productDto.Rating,
-                detailDes = productDto.detailDes
-            };
+        //public async Task<ProductsDetailDTO> GetProductDetailAsync(Guid productId)
+        //{
 
-            var product = new Product
-            {
-                ProductID = Guid.NewGuid(),
-                DetailID = productDetail.DetailID,
-                Name = productDto.Name,
-                Src = productDto.Src,
-                PreImg = productDto.PreImg,
-                Description = productDto.Description
-            };
+        //    var products = await _context.Products
+        //   .Include(p => p.Detail) // Bao gồm thông tin chi tiết từ bảng ProductDetail
+        //   .ToListAsync();
+
+        //    var result = await _context.Products
+        //        .Where(p => p.ProductID == productId)
+        //        .Select(p => new ProductsDetailDTO
+        //        {
+        //            ProductID = p.ProductID,
+        //            Name = p.Name,
+        //            Src = p.Src,
+        //            PreImg = p.PreImg,
+        //            detailDes = p.detailDes, // Giả định bạn có trường này
+        //            Description = p.Description,
+        //            Price = p.Price,
+        //            Stock = p.Stock,
+        //            Rating = p.Rating,
+        //            Brands = new BrandDTO
+        //            {
+        //                // Giả định bạn có bảng BrandDTO
+        //                BrandID = p.Brand.BrandID,
+        //                BrandName = p.Brand.Name
+        //            },
+        //            Categories = new CategoryDTO
+        //            {
+        //                // Giả định bạn có bảng CategoryDTO
+        //                CategoryID = p.Category.CategoryID,
+        //                CategoryName = p.Category.Name
+        //            },
+        //            FormattedPrice = p.Price.ToString("#,0.###") + " đ"
+        //        })
+        //        .FirstOrDefaultAsync();
+
+        //    return product;
 
 
-            _context.Products.Add(product);
-            _context.ProductDetails.Add(productDetail);
-            await _context.SaveChangesAsync();
-
-            productDto.ProductID = product.ProductID;
-            //productDto.DetailID = productDetail.DetailID;
-            return productDto;
-        }
+        //}
     }
 }

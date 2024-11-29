@@ -2,13 +2,11 @@
 
 namespace BEforREACT.Data.Entities
 {
-    public class CategoriesBrand
+    public class ProductCategory
     {
         [Key]
-        public Guid CategoryBrandID { get; set; }
-
+        public Guid Id { get; set; }
+        public Guid ProductID { get; set; }
         public Guid CategoryID { get; set; }
-
-        public Guid BrandID { get; set; }
     }
 }

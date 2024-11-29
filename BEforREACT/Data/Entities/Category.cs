@@ -7,7 +7,7 @@ namespace BEforREACT.Data.Entities
         [Key]
         public Guid CategoryID { get; set; }
 
-        public string CategoryName { get; set; }
+        public string? CategoryName { get; set; }
 
         //public ICollection<CategoriesBrand>? CategoriesBrands { get; set; }
 

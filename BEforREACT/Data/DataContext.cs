@@ -15,7 +15,8 @@ namespace BEforREACT.Data
         public DbSet<Category> Categories { get; set; }
         public DbSet<User> Users { get; set; }
 
-        //public DbSet<CategoriesBrand> CategoriesBrands { get; set; }
+        public DbSet<CategoriesBrand> CategoriesBrands { get; set; }
+        public DbSet<ProductCategory> ProductCategories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -27,7 +28,7 @@ namespace BEforREACT.Data
 
             modelBuilder.Entity<ProductDetail>()
             .Property(p => p.Price)
-            .HasColumnType("decimal(18,3)"); // Hoặc dùng HasPrecision
+            .HasColumnType("decimal(18,3)");
 
             modelBuilder.Entity<ProductDetail>()
             .Property(p => p.Price)
