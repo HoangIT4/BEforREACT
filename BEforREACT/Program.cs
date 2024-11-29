@@ -60,7 +60,7 @@ builder.Services.AddTransient<CartServices>();
 builder.Services.AddTransient<CategoryServices>();
 builder.Services.AddTransient<BrandServices>();
 builder.Services.AddTransient<CategoriesBrandServices>();
-builder.Services.AddTransient<ProductDetailServices>();
+
 
 
 

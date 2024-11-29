@@ -1,5 +1,5 @@
 ﻿using BEforREACT.Data;
-using BEforREACT.Data.Entities;
+using BEforREACT.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace BEforREACT.Services
@@ -24,13 +24,19 @@ namespace BEforREACT.Services
         }
 
 
-        public async Task<Category> CreateCategory(Category category)
+        public bool AddCategory(CategoryDTO request)
         {
-            category.CategoryID = Guid.NewGuid();
+            var category = new Category()
+            {
+                CategoryID = Guid.NewGuid(),
+                CategoryName = request.CategoryName,
+
+            };
             _context.Categories.Add(category);
-            await _context.SaveChangesAsync();
-            return category;
+            _context.SaveChanges();
+            return true;
         }
+
 
         public async Task<Category> UpdateCategory(Guid id, Category category)
         {

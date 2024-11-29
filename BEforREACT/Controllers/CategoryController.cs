@@ -1,4 +1,4 @@
-﻿using BEforREACT.Data.Entities;
+﻿using BEforREACT.DTOs;
 using BEforREACT.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,17 +6,17 @@ using Microsoft.AspNetCore.Mvc;
 [ApiController]
 public class CategoryController : ControllerBase
 {
-    private readonly CategoryServices _categoryService;
+    private readonly CategoryServices _categoryServices;
 
     public CategoryController(CategoryServices categoryService)
     {
-        _categoryService = categoryService;
+        _categoryServices = categoryService;
     }
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
     {
-        var categories = await _categoryService.GetAllCategories();
+        var categories = await _categoryServices.GetAllCategories();
         return Ok(categories);
     }
 
@@ -24,7 +24,7 @@ public class CategoryController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<Category>> GetCategory(Guid id)
     {
-        var category = await _categoryService.GetCategoryById(id);
+        var category = await _categoryServices.GetCategoryById(id);
         if (category == null)
         {
             return NotFound();
@@ -33,10 +33,30 @@ public class CategoryController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Category>> CreateCategory(Category category)
+    public async Task<IActionResult> CreateCategory([FromBody] CategoryDTO categoryDTO)
     {
-        var createdCategory = await _categoryService.CreateCategory(category);
-        return CreatedAtAction(nameof(GetCategory), new { id = createdCategory.CategoryID }, createdCategory);
+        if (categoryDTO == null || string.IsNullOrEmpty(categoryDTO.CategoryName))
+        {
+            return BadRequest("Category data is invalid.");
+        }
+
+        try
+        {
+            var result = await Task.Run(() => _categoryServices.AddCategory(categoryDTO));
+
+            if (result)
+            {
+                return Ok(new { message = "Category created successfully." });
+            }
+            else
+            {
+                return StatusCode(500, "Failed to create category.");
+            }
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Internal server error: {ex.Message}");
+        }
     }
 
 

@@ -1,4 +1,5 @@
-﻿using BEforREACT.Services;
+﻿using BEforREACT.DTOs;
+using BEforREACT.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BEforREACT.Controllers
@@ -14,29 +15,97 @@ namespace BEforREACT.Controllers
             _productServices = productServices;
         }
 
+        [HttpGet("items")]
+        public async Task<IActionResult> GetProductItems([FromQuery] ProductQuerryParams productParams)
+        {
+            try
+            {
+                var products = await _productServices.GetProductItemsAsync(productParams);
+                return Ok(
+                   new
+                   {
+                       status = "success",
+                       message = "get all products successfully",
+                       data = products
+                   });  // Trả về kết quả dưới dạng JSON
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        // API endpoint để lấy chi tiết sản phẩm
+        [HttpGet("detail/{productId}")]
+        public async Task<IActionResult> GetProductDetail(Guid productId)
+        {
+            try
+            {
+                var productDetail = await _productServices.GetProductDetailAsync(productId);
+
+                if (productDetail == null)
+                {
+                    return NotFound($"Product with ID {productId} not found");
+                }
+
+                return Ok(productDetail);  // Trả về chi tiết sản phẩm dưới dạng JSON
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+        [HttpPost("create")]
+        public IActionResult CreateProduct([FromBody] ProductCreateRequest request)
+        {
+            if (request == null || string.IsNullOrEmpty(request.Name))
+            {
+                return BadRequest(new { message = "Thông tin sản phẩm không hợp lệ." });
+            }
+
+            try
+            {
+                var result = _productServices.AddProduct(request);
+
+                if (result)
+                {
+                    return Ok(new { message = "Thêm sản phẩm thành công." });
+                }
+                else
+                {
+                    return StatusCode(500, new { message = "Đã xảy ra lỗi khi thêm sản phẩm." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = $"Lỗi: {ex.Message}" });
+            }
+        }
+
+
         //[HttpGet("all")]
         //[Authorize]
-        //    public async Task<ActionResult<List<Product>>> GetAllProducts()
+        //public async Task<ActionResult<List<Product>>> GetAllProducts()
+        //{
+        //    try
         //    {
-        //        try
+        //        var productsItem = await _productServices.GetProductDetailAsync();
+        //        return Ok(new
         //        {
-        //            var productsItem = await _productServices.GetAllProducts();
-        //            return Ok(new
-        //            {
-        //                status = "success",
-        //                message = "get all products successfully",
-        //                data = productsItem
-        //            });
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            return StatusCode(500, new
-        //            {
-        //                status = "error",
-        //                message = ex.Message
-        //            });
-        //        }
+        //            status = "success",
+        //            message = "get all products successfully",
+        //            data = productsItem
+        //        });
         //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, new
+        //        {
+        //            status = "error",
+        //            message = ex.Message
+        //        });
+        //    }
+        //}
 
         //    [HttpGet("{id}")]
         //    public async Task<ActionResult<Product>> GetProductById(Guid id)
