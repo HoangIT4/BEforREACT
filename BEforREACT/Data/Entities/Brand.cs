@@ -9,8 +9,9 @@ namespace BEforREACT.Data.Entities
 
         public string? BrandName { get; set; }
 
-        //public ICollection<CategoriesBrand>? CategoriesBrands { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? DeletedAt { get; set; } = null;
+
+        public virtual ICollection<CategoriesBrand> CategoriesBrands { get; set; }
     }
 }

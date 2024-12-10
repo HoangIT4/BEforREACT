@@ -10,5 +10,8 @@ namespace BEforREACT.Data.Entities
         public Guid CategoryID { get; set; }
 
         public Guid BrandID { get; set; }
+
+        public virtual Category Category { get; set; }
+        public virtual Brand Brand { get; set; }
     }
 }

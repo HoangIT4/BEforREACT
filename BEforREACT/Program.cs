@@ -58,7 +58,9 @@ builder.Services.AddTransient<UserServices>();
 builder.Services.AddTransient<ProductServices>();
 builder.Services.AddTransient<CartServices>();
 builder.Services.AddTransient<CategoryServices>();
+builder.Services.AddTransient<CartServices>();
 builder.Services.AddTransient<BrandServices>();
+builder.Services.AddTransient<OrderServices>();
 builder.Services.AddTransient<CategoriesBrandServices>();
 
 

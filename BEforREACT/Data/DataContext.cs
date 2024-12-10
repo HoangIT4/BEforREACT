@@ -15,8 +15,11 @@ namespace BEforREACT.Data
         public DbSet<Category> Categories { get; set; }
         public DbSet<User> Users { get; set; }
 
+
         public DbSet<CategoriesBrand> CategoriesBrands { get; set; }
         public DbSet<ProductCategory> ProductCategories { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -34,22 +37,12 @@ namespace BEforREACT.Data
             .Property(p => p.Price)
             .HasPrecision(18, 3);
 
-            modelBuilder.Entity<Category>().HasData(
-            new Category
-            {
-                CategoryID = Guid.NewGuid(),
-                CategoryName = "All Products"
-            }
-            );
+
 
 
 
         }
-        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        //{
-        //    optionsBuilder
-        //        .ConfigureWarnings(warnings => warnings.Throw(RelationalEventId.PendingModelChangesWarning));
-        //}
+
 
 
     }

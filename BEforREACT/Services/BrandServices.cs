@@ -1,6 +1,6 @@
 ﻿using BEforREACT.Data;
 using BEforREACT.Data.Entities;
-
+using BEforREACT.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace BEforREACT.Services
@@ -24,37 +24,47 @@ namespace BEforREACT.Services
             return await _context.Brands.FindAsync(id);
         }
 
-        public async Task<Brand> CreateBrand(Brand brand, List<Guid>? categoryIds = null)
+        public bool AddBrand(BrandDTO request)
         {
-            brand.BrandID = Guid.NewGuid();
+            var brand = new Brand()
+            {
+                BrandID = Guid.NewGuid(),
+                BrandName = request.BrandName,
+            };
 
-            //if (categoryIds != null && categoryIds.Any())
-            //{
-            //    brand.CategoriesBrands = categoryIds.Select(id => new CategoriesBrand
-            //    {
-            //        CategoryID = id,
-            //        BrandID = brand.BrandID
-            //    }).ToList();
-            //}
 
             _context.Brands.Add(brand);
-            await _context.SaveChangesAsync();
-            return brand;
+            _context.SaveChanges();
+            return true;
         }
 
 
 
 
-        public async Task<Brand> UpdateBrand(Guid id, Brand brand)
+        public async Task<BrandDTO> UpdateBrand(Guid id, BrandDTO brandDTO)
         {
-            if (id != brand.BrandID)
+            var existingBrand = await _context.Brands.FindAsync(id);
+
+            if (existingBrand == null)
             {
-                throw new ArgumentException("Brand ID ko tồn tại");
+                throw new KeyNotFoundException("Brand not found.");
             }
 
-            _context.Entry(brand).State = EntityState.Modified;
+            // Cập nhật các thuộc tính của thương hiệu từ BrandDTO
+            existingBrand.BrandName = brandDTO.BrandName;
+            existingBrand.CreatedAt = brandDTO.CreatedAt;  // Cập nhật thêm nếu có
+
+            // Lưu thay đổi vào cơ sở dữ liệu
+            _context.Brands.Update(existingBrand);
             await _context.SaveChangesAsync();
-            return brand;
+
+            // Trả về BrandDTO đã cập nhật
+            return new BrandDTO
+            {
+                BrandID = existingBrand.BrandID,
+                BrandName = existingBrand.BrandName,
+                CreatedAt = existingBrand.CreatedAt
+            };
         }
 
 

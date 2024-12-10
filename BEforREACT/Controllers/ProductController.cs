@@ -15,6 +15,19 @@ namespace BEforREACT.Controllers
             _productServices = productServices;
         }
 
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllProducts()
+        {
+            var products = await _productServices.GetAllProducts();
+            if (products == null || !products.Any())
+            {
+                return NotFound("No products found.");
+            }
+            return Ok(
+               new { data = products }
+                );
+        }
+
         [HttpGet("items")]
         public async Task<IActionResult> GetProductItems([FromQuery] ProductQuerryParams productParams)
         {
@@ -27,7 +40,7 @@ namespace BEforREACT.Controllers
                        status = "success",
                        message = "get all products successfully",
                        data = products
-                   });  // Trả về kết quả dưới dạng JSON
+                   });
             }
             catch (Exception ex)
             {
@@ -35,8 +48,10 @@ namespace BEforREACT.Controllers
             }
         }
 
-        // API endpoint để lấy chi tiết sản phẩm
-        [HttpGet("detail/{productId}")]
+
+
+
+        [HttpGet("{productId}")]
         public async Task<IActionResult> GetProductDetail(Guid productId)
         {
             try
@@ -82,80 +97,25 @@ namespace BEforREACT.Controllers
             }
         }
 
+        [HttpPatch("update/{productId}")]
+        public async Task<IActionResult> UpdateProduct(Guid productId, ProductsDetailDTO request)
+        {
+            var result = await _productServices.UpdateProductAsync(productId, request);
+            if (result)
+                return Ok(new { message = "Product updated successfully" });
+            else
+                return NotFound(new { message = "Product not found" });
+        }
 
-        //[HttpGet("all")]
-        //[Authorize]
-        //public async Task<ActionResult<List<Product>>> GetAllProducts()
-        //{
-        //    try
-        //    {
-        //        var productsItem = await _productServices.GetProductDetailAsync();
-        //        return Ok(new
-        //        {
-        //            status = "success",
-        //            message = "get all products successfully",
-        //            data = productsItem
-        //        });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return StatusCode(500, new
-        //        {
-        //            status = "error",
-        //            message = ex.Message
-        //        });
-        //    }
-        //}
+        [HttpDelete("{productId}")]
+        public async Task<IActionResult> DeleteProduct(Guid productId)
+        {
+            var result = await _productServices.DeleteProductAsync(productId);
 
-        //    [HttpGet("{id}")]
-        //    public async Task<ActionResult<Product>> GetProductById(Guid id)
-        //    {
-        //        var product = await _productServices.GetProductById(id);
-        //        if (product == null)
-        //            return NotFound();
-        //        return Ok(product);
-        //    }
-
-
-        //    [HttpGet("category/{categoryId}")]
-        //    public async Task<ActionResult<List<Product>>> GetProductsByCategory(Guid categoryId)
-        //    {
-        //        var products = await _productServices.GetProductsByCategory(categoryId);
-        //        return Ok(products);
-        //    }
-
-
-        //    [HttpGet("brand/{brandId}")]
-        //    public async Task<ActionResult<List<Product>>> GetProductsByBrand(Guid brandId)
-        //    {
-        //        var products = await _productServices.GetProductsByBrand(brandId);
-        //        return Ok(products);
-        //    }
-        //    [HttpPost]
-        //    public async Task<ActionResult<Product>> AddProduct(Product product)
-        //    {
-        //        var newProduct = await _productServices.AddProductAsync(product);
-        //        return CreatedAtAction(nameof(GetProductById), new { status = "success", id = newProduct.ProductID }, newProduct);
-        //    }
-
-        //    [HttpPut("{id}")]
-        //    public async Task<ActionResult<Product>> UpdateProduct(Guid id, Product product)
-        //    {
-        //        var updatedProduct = await _productServices.UpdateProductAsync(id, product);
-        //        if (updatedProduct == null)
-        //            return NotFound();
-        //        return Ok(updatedProduct);
-        //    }
-
-        //    [HttpDelete("{id}")]
-        //    public async Task<ActionResult> DeleteProduct(Guid id)
-        //    {
-        //        var result = await _productServices.DeleteProductAsync(id);
-        //        if (!result)
-        //            return NotFound();
-        //        return NoContent();
-        //    }
-
-        //}
+            if (result)
+                return Ok(new { message = "Product deleted successfully" });
+            else
+                return NotFound(new { message = "Product not found" });
+        }
     }
 }

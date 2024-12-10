@@ -1,4 +1,5 @@
 ﻿using BEforREACT.Data.Entities;
+using BEforREACT.DTOs;
 using BEforREACT.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,26 +9,31 @@ namespace BEforREACT.Controllers
     [ApiController]
     public class BrandController : ControllerBase
     {
-        private readonly BrandServices _brandService;
+        private readonly BrandServices _brandServices;
 
-        public BrandController(BrandServices brandService)
+        public BrandController(BrandServices brandServices)
         {
-            _brandService = brandService;
+            _brandServices = brandServices;
         }
 
         // GET: api/Brand
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Brand>>> GetBrands()
         {
-            var brands = await _brandService.GetAllBrands();
-            return Ok(brands);
+            var brands = await _brandServices.GetAllBrands();
+            return Ok(
+               new
+               {
+                   data = brands,
+                   status = "success"
+               });
         }
 
         // GET: api/Brand/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<Brand>> GetBrand(Guid id)
         {
-            var brand = await _brandService.GetBrandById(id);
+            var brand = await _brandServices.GetBrandById(id);
             if (brand == null)
             {
                 return NotFound();
@@ -37,19 +43,38 @@ namespace BEforREACT.Controllers
 
         // POST: api/Brand
         [HttpPost]
-        public async Task<ActionResult<Brand>> CreateBrand(Brand brand)
+        public async Task<ActionResult<Brand>> CreateBrand([FromBody] BrandDTO brandDTO)
         {
-            var createdBrand = await _brandService.CreateBrand(brand);
-            return CreatedAtAction(nameof(GetBrand), new { id = createdBrand.BrandID }, createdBrand);
-        }
+            if (brandDTO == null || string.IsNullOrEmpty(brandDTO.BrandName))
+            {
+                return BadRequest("Brand data is invalid.");
+            }
 
+            try
+            {
+                var result = await Task.Run(() => _brandServices.AddBrand(brandDTO));
+
+                if (result)
+                {
+                    return Ok(new { message = "Brand created successfully." });
+                }
+                else
+                {
+                    return StatusCode(500, "Failed to create Brand.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
         // PUT: api/Brand/{id}
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateBrand(Guid id, Brand brand)
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> UpdateBrand(Guid id, [FromBody] BrandDTO brandDTO)
         {
             try
             {
-                var updatedBrand = await _brandService.UpdateBrand(id, brand);
+                var updatedBrand = await _brandServices.UpdateBrand(id, brandDTO);
                 return Ok(updatedBrand);
             }
             catch (ArgumentException)
@@ -62,7 +87,7 @@ namespace BEforREACT.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBrand(Guid id)
         {
-            var result = await _brandService.DeleteBrand(id);
+            var result = await _brandServices.DeleteBrand(id);
             if (!result)
             {
                 return NotFound();

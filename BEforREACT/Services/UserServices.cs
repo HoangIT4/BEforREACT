@@ -1,5 +1,6 @@
 ﻿using BEforREACT.Data;
 using BEforREACT.Data.Entities;
+using BEforREACT.DTOs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -150,7 +151,7 @@ namespace BEforREACT.Services
                 return null;
             }
 
-            return user; // Trả về người dùng nếu đăng nhập thành công
+            return user;
         }
 
 
@@ -196,20 +197,24 @@ namespace BEforREACT.Services
         //    );
         //    return refreshToken;
         //}
-        public async Task<User> Update(Guid id, User user)
+        public async Task<User> Update(UserUpdateRequest request)
         {
-            var existingUser = await _context.Users.FindAsync(id);
+            var existingUser = await _context.Users.FindAsync(request.UserID);
             if (existingUser == null)
             {
                 return null; // Người dùng không tồn tại
             }
 
             // Cập nhật các trường thông tin
-            if (!string.IsNullOrEmpty(user.Email)) existingUser.Email = user.Email;
-            if (!string.IsNullOrEmpty(user.UserName)) existingUser.UserName = user.UserName;
-            if (!string.IsNullOrEmpty(user.PhoneNumber)) existingUser.PhoneNumber = user.PhoneNumber;
+            if (!string.IsNullOrEmpty(request.UserName)) existingUser.UserName = request.UserName;
+            if (!string.IsNullOrEmpty(request.Email)) existingUser.Email = request.Email;
 
-            if (user.Address != null) existingUser.Address = user.Address;
+            if (!string.IsNullOrEmpty(request.Address)) existingUser.Address = request.Address;
+            if (!string.IsNullOrEmpty(request.BirthDay) && DateTime.TryParse(request.BirthDay, out var birthday))
+                existingUser.Birthday = birthday;
+            if (!string.IsNullOrEmpty(request.Gender)) existingUser.Gender = request.Gender;
+
+            existingUser.UpdatedAt = DateTime.UtcNow; // Cập nhật thời gian thay đổi
 
             // Cập nhật thời gian thay đổi
             existingUser.UpdatedAt = DateTime.UtcNow;

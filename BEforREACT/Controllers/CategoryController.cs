@@ -17,7 +17,14 @@ public class CategoryController : ControllerBase
     public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
     {
         var categories = await _categoryServices.GetAllCategories();
-        return Ok(categories);
+        return Ok(
+            new
+            {
+                data = categories,
+                status = "succes"
+
+            }
+            );
     }
 
 
