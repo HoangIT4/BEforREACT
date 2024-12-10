@@ -7,10 +7,11 @@ namespace BEforREACT.Services
     public class ProductServices
     {
         private readonly DataContext _context;
-        public ProductServices(DataContext context)
+        private FileStorageServices _fileStorageServices;
+        public ProductServices(DataContext context, FileStorageServices fileStorageServices)
         {
             _context = context;
-
+            _fileStorageServices = fileStorageServices;
         }
         public async Task<List<ProductItemViewDTO>> GetProductItemsAsync(ProductQuerryParams productParam)
         {
@@ -96,6 +97,9 @@ namespace BEforREACT.Services
                 PreImg = p.PreImg,
                 Price = p.Detail?.Price ?? 0,
                 Stock = p.Detail?.Stock ?? 0,
+                IsBestSeller = p.Detail?.IsBestSeller ?? false,
+                IsHotDeal = p.Detail?.IsHotDeal ?? false,
+                IsNew = p.Detail?.IsNew ?? false,
                 Brands = new BrandDTO
                 {
                     BrandID = p.Brand?.BrandID ?? Guid.Empty,
@@ -134,9 +138,9 @@ namespace BEforREACT.Services
                 PreImg = product.PreImg,
                 detailDes = product.Detail?.detailDes,
                 Description = product.Detail?.Description,
-                IsBestSeller = (bool)(product.Detail?.IsBestSeller),
-                IsHotDeal = (bool)(product.Detail?.IsHotDeal),
-                IsNew = (bool)(product.Detail?.IsNew),
+                IsBestSeller = product.Detail?.IsBestSeller ?? false,
+                IsHotDeal = product.Detail?.IsHotDeal ?? false,
+                IsNew = product.Detail?.IsNew ?? false,
                 Weight = product.Detail?.Weight,
                 Origin = product.Detail?.Origin,
                 Price = product.Detail?.Price ?? 0,
@@ -155,19 +159,36 @@ namespace BEforREACT.Services
 
             return productDetailDTO;
         }
-        public bool AddProduct(ProductCreateRequest request)
+        public async Task<bool> AddProductAsync(ProductCreateRequest request)
         {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request), "Product creation request cannot be null.");
+            }
+
+            // Initialize the product object
             var products = new Product()
             {
                 ProductID = Guid.NewGuid(),
                 Name = request.Name,
                 BrandID = request.BrandID,
-                Src = request.Src,
-                PreImg = request.PreImg,
+                Src = string.Empty, // Initialize for the image path
+                PreImg = string.Empty // Initialize for the preview image path
             };
 
-            var productDetails = new List<ProductDetail>();
+            // Handle image uploads
+            if (request.Src != null)
+            {
+                products.Src = await _fileStorageServices.UploadImageFileAsync(request.Src, "products");
+            }
 
+            if (request.PreImg != null)
+            {
+                products.PreImg = await _fileStorageServices.UploadImageFileAsync(request.PreImg, "products");
+            }
+
+            // Create product details
+            var productDetails = new List<ProductDetail>();
             foreach (var item in request.ProductDetailsRequest)
             {
                 var productDetail = new ProductDetail()
@@ -186,7 +207,7 @@ namespace BEforREACT.Services
                 productDetails.Add(productDetail);
             }
 
-
+            // Create product categories
             var productCategories = new List<ProductCategory>();
             foreach (var categoryId in request.CategoryIDs)
             {
@@ -198,10 +219,21 @@ namespace BEforREACT.Services
                 productCategories.Add(productCategory);
             }
 
+            // Add to the context and save changes
             _context.Products.Add(products);
             _context.ProductDetails.AddRange(productDetails);
             _context.ProductCategories.AddRange(productCategories);
-            _context.SaveChanges();
+
+            try
+            {
+                await _context.SaveChangesAsync(); // Use asynchronous save
+            }
+            catch (Exception ex)
+            {
+                // Handle the exception as needed
+                throw new Exception("Failed to save product to the database.", ex);
+            }
+
             return true;
         }
 
@@ -267,12 +299,12 @@ namespace BEforREACT.Services
         }
 
 
-        public async Task<bool> DeleteProductAsync(Guid productId)
+        public async Task<bool> DeleteProductAsync(Guid productID)
         {
             var product = await _context.Products
                 .Include(p => p.Detail)
                 .Include(p => p.ProductCategories)
-                .FirstOrDefaultAsync(p => p.ProductID == productId);
+                .FirstOrDefaultAsync(p => p.ProductID == productID);
 
             if (product == null)
                 return false;

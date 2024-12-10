@@ -4,8 +4,8 @@
     {
         public string Name { get; set; }
 
-        public string? Src { get; set; }
-        public string? PreImg { get; set; }
+        public IFormFile? Src { get; set; }
+        public IFormFile? PreImg { get; set; }
         public Guid BrandID { get; set; }
         public List<Guid>? CategoryIDs { get; set; } // Danh sách các Category liên quan
         public List<ProductDetailCreateRequest>? ProductDetailsRequest { get; set; }

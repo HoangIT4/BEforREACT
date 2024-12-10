@@ -70,9 +70,11 @@ namespace BEforREACT.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
         [HttpPost("create")]
-        public IActionResult CreateProduct([FromBody] ProductCreateRequest request)
+        public async Task<IActionResult> CreateProduct([FromForm] ProductCreateRequest request)
         {
+            // Validate the request
             if (request == null || string.IsNullOrEmpty(request.Name))
             {
                 return BadRequest(new { message = "Thông tin sản phẩm không hợp lệ." });
@@ -80,15 +82,24 @@ namespace BEforREACT.Controllers
 
             try
             {
-                var result = _productServices.AddProduct(request);
+                // Call the asynchronous service method to add the product
+                var result = await _productServices.AddProductAsync(request);
 
                 if (result)
                 {
-                    return Ok(new { message = "Thêm sản phẩm thành công." });
+                    return Ok(new
+                    {
+                        success = true,
+                        message = "Thêm sản phẩm thành công"
+                    }); ;
                 }
                 else
                 {
-                    return StatusCode(500, new { message = "Đã xảy ra lỗi khi thêm sản phẩm." });
+                    return Ok(new
+                    {
+                        success = false,
+                        message = "Đã xảy ra lỗi khi thêm sản phẩm."
+                    });
                 }
             }
             catch (Exception ex)

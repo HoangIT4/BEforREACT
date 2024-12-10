@@ -62,9 +62,7 @@ builder.Services.AddTransient<CartServices>();
 builder.Services.AddTransient<BrandServices>();
 builder.Services.AddTransient<OrderServices>();
 builder.Services.AddTransient<CategoriesBrandServices>();
-
-
-
+builder.Services.AddTransient<FileStorageServices>();
 
 
 builder.Services.AddAuthentication(options =>
@@ -129,7 +127,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseCors("AllowAllOrigins");
 app.UseAuthorization();
-
+app.UseStaticFiles();
 app.MapControllers();
 
 app.Run();
