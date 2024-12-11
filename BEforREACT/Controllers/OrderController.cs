@@ -1,4 +1,5 @@
 ﻿using BEforREACT.Data.Entities;
+using BEforREACT.DTOs;
 using BEforREACT.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,8 +17,19 @@ namespace BEforREACT.Controllers
             _orderService = orderService;
         }
 
+        [HttpGet("Admin")]
+        public async Task<ActionResult<List<OrderDetailRes>>> GetAllOrdersForAdmin()
+        {
+
+            var orders = await _orderService.GetAllOrders();
+            return Ok(orders);
+
+
+        }
+
+
         // Lấy danh sách Order
-        [HttpGet]
+        [HttpGet("All")]
         public async Task<ActionResult<List<Order>>> GetOrders(Guid UserID)
         {
             var orders = await _orderService.GetOrdersByUserID(UserID);
@@ -34,16 +46,18 @@ namespace BEforREACT.Controllers
         }
 
         // Tạo mới Order
-        [HttpPost]
-        public async Task<ActionResult<Order>> CreateOrder(Guid userId, string address, string phoneNumber, string paymentMethod, [FromBody] List<OrderItem> items)
+        [HttpPost("create")]
+        public async Task<ActionResult<Order>> CreateOrder(Guid userId, string address, string phoneNumber, string paymentMethod)
         {
-            var newOrder = await _orderService.CreateOrder(userId, address, phoneNumber, paymentMethod, items);
+            var newOrder = await _orderService.CreateOrderFromCart(userId, address, phoneNumber, paymentMethod);
             return CreatedAtAction(nameof(GetOrderById), new { id = newOrder.OrderID }, newOrder);
         }
 
+
+
         // Cập nhật trạng thái Order
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateOrderStatus(Guid id, [FromBody] int status)
+        [HttpPut("changeStatus/{id}")]
+        public async Task<IActionResult> UpdateOrderStatus(Guid id, int status)
         {
             var success = await _orderService.UpdateOrderStatusAsync(id, status);
             if (!success) return NotFound("Order không tồn tại.");
@@ -51,7 +65,7 @@ namespace BEforREACT.Controllers
         }
 
         // Xóa Order
-        [HttpDelete("{id}")]
+        [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteOrder(Guid id)
         {
             var success = await _orderService.DeleteOrderAsync(id);

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace BEforREACT.Data.Entities
 {
@@ -16,6 +17,9 @@ namespace BEforREACT.Data.Entities
         public DateTime? CreateAt { get; set; } = DateTime.UtcNow;
 
         public DateTime? DeleteAt { get; set; } = null;
+
+        [JsonIgnore]
+
         public virtual ICollection<OrderItem> OrderItems { get; set; }
 
 
