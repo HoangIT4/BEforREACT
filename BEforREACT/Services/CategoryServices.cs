@@ -24,7 +24,7 @@ namespace BEforREACT.Services
         }
 
 
-        public bool AddCategory(CategoryDTO request)
+        public async Task<bool> AddCategory(CategoryDTO request)
         {
             var category = new Category()
             {
@@ -33,22 +33,36 @@ namespace BEforREACT.Services
 
             };
             _context.Categories.Add(category);
-            _context.SaveChanges();
+
+            await _context.SaveChangesAsync();
             return true;
         }
 
 
-        public async Task<Category> UpdateCategory(Guid id, Category category)
+
+
+        public async Task<CategoryDTO> UpdateCategory(Guid id, CategoryDTO categoryDTO)
         {
-            if (id != category.CategoryID)
+            var existingCategory = await _context.Categories.FindAsync(id);
+
+            if (existingCategory == null)
             {
-                throw new ArgumentException("Category ID not found");
+                throw new KeyNotFoundException("Category not found.");
             }
 
-            _context.Entry(category).State = EntityState.Modified;
+            existingCategory.CategoryName = categoryDTO.CategoryName;
+
+            _context.Categories.Update(existingCategory);
             await _context.SaveChangesAsync();
-            return category;
+
+            return new CategoryDTO
+            {
+                CategoryID = existingCategory.CategoryID,
+                CategoryName = existingCategory.CategoryName,
+                CreatedAt = existingCategory.CreatedAt
+            };
         }
+
 
 
         public async Task<bool> DeleteCategory(Guid id)

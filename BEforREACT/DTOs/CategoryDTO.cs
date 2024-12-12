@@ -4,5 +4,6 @@
     {
         public Guid CategoryID { get; set; }
         public string? CategoryName { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

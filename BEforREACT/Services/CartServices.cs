@@ -54,7 +54,7 @@ namespace BEforREACT.Services
             if (existingCartItem != null)
             {
                 // Cập nhật số lượng nếu sản phẩm đã có trong giỏ
-                existingCartItem.Quantity = request.Quantity;
+                existingCartItem.Quantity += request.Quantity;
                 existingCartItem.isMultiple = request.isMultiple;
                 cartID = existingCartItem.CartID;
                 _context.Carts.Update(existingCartItem);

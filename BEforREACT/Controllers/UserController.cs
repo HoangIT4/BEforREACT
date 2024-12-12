@@ -39,7 +39,7 @@ namespace BEforREACT.Controllers
 
 
         [HttpGet("all")]
-        [Authorize]
+        //[Authorize]
         public IActionResult GetAll()
         {
             var result = _userServices.GetUsers();
@@ -89,6 +89,22 @@ namespace BEforREACT.Controllers
 
             return Ok(new { status = "success", message = "Cập nhật thông tin thành công." });
         }
+
+        [HttpPost("ChangePassword")]
+        public async Task<IActionResult> ChangePassword(Guid userId, string currentPassword, string newPassword)
+        {
+            bool result = await _userServices.ChangePassword(userId, currentPassword, newPassword);
+
+            if (result)
+            {
+                return Ok("Password updated successfully");
+            }
+            else
+            {
+                return BadRequest("Failed to update password");
+            }
+        }
+
     }
 
 

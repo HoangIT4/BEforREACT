@@ -24,7 +24,7 @@ namespace BEforREACT.Services
             return await _context.Brands.FindAsync(id);
         }
 
-        public bool AddBrand(BrandDTO request)
+        public async Task<bool> AddBrand(BrandDTO request)
         {
             var brand = new Brand()
             {
@@ -34,7 +34,7 @@ namespace BEforREACT.Services
 
 
             _context.Brands.Add(brand);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return true;
         }
 
@@ -52,7 +52,7 @@ namespace BEforREACT.Services
 
             // Cập nhật các thuộc tính của thương hiệu từ BrandDTO
             existingBrand.BrandName = brandDTO.BrandName;
-            existingBrand.CreatedAt = brandDTO.CreatedAt;  // Cập nhật thêm nếu có
+            //existingBrand.CreatedAt = brandDTO.CreatedAt;  // Cập nhật thêm nếu có
 
             // Lưu thay đổi vào cơ sở dữ liệu
             _context.Brands.Update(existingBrand);
@@ -63,7 +63,7 @@ namespace BEforREACT.Services
             {
                 BrandID = existingBrand.BrandID,
                 BrandName = existingBrand.BrandName,
-                CreatedAt = existingBrand.CreatedAt
+                //CreatedAt = existingBrand.CreatedAt
             };
         }
 
