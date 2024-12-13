@@ -38,6 +38,8 @@
     public class OrderDetailRes
     {
         public Guid OrderID { get; set; }
+        public string? Fullname { get; set; } = "Khách";
+
         public decimal TotalPrice { get; set; }
         public Guid UserID { get; set; }
         public int Status { get; set; }

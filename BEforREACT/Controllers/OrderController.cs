@@ -47,9 +47,9 @@ namespace BEforREACT.Controllers
 
         // Tạo mới Order
         [HttpPost("create")]
-        public async Task<ActionResult<Order>> CreateOrder(Guid userId, string address, string phoneNumber, string paymentMethod)
+        public async Task<ActionResult<Order>> CreateOrder(OrderCreateDto orderCreateDto)
         {
-            var newOrder = await _orderService.CreateOrderFromCart(userId, address, phoneNumber, paymentMethod);
+            var newOrder = await _orderService.CreateOrderFromCart(orderCreateDto.UserId, orderCreateDto.Fullname, orderCreateDto.Address, orderCreateDto.PhoneNumber, orderCreateDto.PaymentMethod);
             return CreatedAtAction(nameof(GetOrderById), new { id = newOrder.OrderID }, newOrder);
         }
 

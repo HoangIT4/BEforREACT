@@ -22,6 +22,7 @@ namespace BEforREACT.Services
                 {
                     OrderID = order.OrderID,
                     UserID = order.UserID,
+                    Fullname = order.Fullname,
                     TotalPrice = order.OrderItems.Sum(oi => oi.TotalPrice ?? 0),
                     Status = order.Status ?? 0,
                     Address = order.Address,
@@ -48,7 +49,7 @@ namespace BEforREACT.Services
         }
 
 
-        public async Task<Order> CreateOrderFromCart(Guid userId, string address, string phoneNumber, string paymentMethod)
+        public async Task<Order> CreateOrderFromCart(Guid userId, string fullname,string address, string phoneNumber, string paymentMethod)
         {
             // Lấy danh sách sản phẩm từ bảng Cart của người dùng
             var cartItems = await _context.Carts
