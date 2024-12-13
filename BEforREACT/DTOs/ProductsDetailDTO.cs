@@ -24,7 +24,7 @@ namespace BEforREACT.DTOs
         public BrandDTO Brands { get; set; }
         public List<CategoryDTO> Categories { get; set; }  // Danh sách các category
 
-        //public string FormattedPrice => Price.ToString("#,0.###") + " " + "đ";
+        public string FormattedPrice => Price.ToString("0.000");
 
     }
 

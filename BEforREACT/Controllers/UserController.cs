@@ -90,18 +90,23 @@ namespace BEforREACT.Controllers
             return Ok(new { status = "success", message = "Cập nhật thông tin thành công." });
         }
 
-        [HttpPost("ChangePassword")]
-        public async Task<IActionResult> ChangePassword(Guid userId, string currentPassword, string newPassword)
+        [HttpPost("change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
         {
-            bool result = await _userServices.ChangePassword(userId, currentPassword, newPassword);
+            if (request == null || request.UserId == Guid.Empty || string.IsNullOrEmpty(request.CurrentPassword) || string.IsNullOrEmpty(request.NewPassword))
+            {
+                return BadRequest("Invalid request data.");
+            }
+
+            var result = await _userServices.ChangePassword(request);
 
             if (result)
             {
-                return Ok("Password updated successfully");
+                return Ok(new { message = "Password changed successfully." });
             }
             else
             {
-                return BadRequest("Failed to update password");
+                return BadRequest("Failed to change password.");
             }
         }
 

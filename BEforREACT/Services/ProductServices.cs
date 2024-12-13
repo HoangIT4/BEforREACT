@@ -138,6 +138,7 @@ namespace BEforREACT.Services
                 PreImg = product.PreImg,
                 detailDes = product.Detail?.detailDes,
                 Description = product.Detail?.Description,
+
                 IsBestSeller = product.Detail?.IsBestSeller ?? false,
                 IsHotDeal = product.Detail?.IsHotDeal ?? false,
                 IsNew = product.Detail?.IsNew ?? false,
@@ -166,14 +167,23 @@ namespace BEforREACT.Services
                 throw new ArgumentNullException(nameof(request), "Product creation request cannot be null.");
             }
 
+            // Kiểm tra xem tên sản phẩm đã tồn tại chưa
+            var existingProduct = await _context.Products
+                .FirstOrDefaultAsync(p => p.Name.ToLower() == request.Name.ToLower());
+
+            if (existingProduct != null)
+            {
+                throw new Exception("Tên sản phẩm đã tồn tại trong hệ thống.");
+            }
+
             // Initialize the product object
             var products = new Product()
             {
                 ProductID = Guid.NewGuid(),
                 Name = request.Name,
                 BrandID = request.BrandID,
-                Src = string.Empty, // Initialize for the image path
-                PreImg = string.Empty // Initialize for the preview image path
+                Src = string.Empty,
+                PreImg = string.Empty
             };
 
             // Handle image uploads
@@ -209,14 +219,17 @@ namespace BEforREACT.Services
 
             // Create product categories
             var productCategories = new List<ProductCategory>();
-            foreach (var categoryId in request.CategoryIDs)
+            if (request.CategoryIDs != null)
             {
-                var productCategory = new ProductCategory()
+                foreach (var categoryId in request.CategoryIDs)
                 {
-                    ProductID = products.ProductID,
-                    CategoryID = categoryId
-                };
-                productCategories.Add(productCategory);
+                    var productCategory = new ProductCategory()
+                    {
+                        ProductID = products.ProductID,
+                        CategoryID = categoryId
+                    };
+                    productCategories.Add(productCategory);
+                }
             }
 
             // Add to the context and save changes
@@ -226,11 +239,10 @@ namespace BEforREACT.Services
 
             try
             {
-                await _context.SaveChangesAsync(); // Use asynchronous save
+                await _context.SaveChangesAsync();
             }
             catch (Exception ex)
             {
-                // Handle the exception as needed
                 throw new Exception("Failed to save product to the database.", ex);
             }
 
@@ -238,66 +250,81 @@ namespace BEforREACT.Services
         }
 
 
-        public async Task<bool> UpdateProductAsync(Guid productId, ProductsDetailDTO request)
+        public async Task<bool> UpdateProductAsync(Guid productId, ProductCreateRequest request)
         {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request), "Product update request cannot be null.");
+            }
+
+            // Check if the product exists
             var product = await _context.Products
-                .Include(p => p.Detail)
+                .Include(p => p.Detail) // Assuming Detail is a navigation property
                 .Include(p => p.ProductCategories)
                 .FirstOrDefaultAsync(p => p.ProductID == productId);
 
             if (product == null)
-                return false; // Sản phẩm không tồn tại
-
-            if (!string.IsNullOrEmpty(request.Name))
-                product.Name = request.Name;
-
-            if (!string.IsNullOrEmpty(request.Src))
-                product.Src = request.Src;
-
-            if (!string.IsNullOrEmpty(request.PreImg))
-                product.PreImg = request.PreImg;
-
-            if (request.Price > 0 && product.Detail != null)
-                product.Detail.Price = request.Price;
-
-            if (!string.IsNullOrEmpty(request.Description) && product.Detail != null)
-                product.Detail.Description = request.Description;
-
-            if (!string.IsNullOrEmpty(request.detailDes) && product.Detail != null)
-                product.Detail.detailDes = request.detailDes;
-
-            if (request.Stock > 0 && product.Detail != null)
-                product.Detail.Stock = request.Stock;
-
-            if (request.IsBestSeller != product.Detail?.IsBestSeller && product.Detail != null)
-                product.Detail.IsBestSeller = request.IsBestSeller;
-
-            if (request.IsHotDeal != product.Detail?.IsHotDeal && product.Detail != null)
-                product.Detail.IsHotDeal = request.IsHotDeal;
-
-            if (request.IsNew != product.Detail?.IsNew && product.Detail != null)
-                product.Detail.IsNew = request.IsNew;
-
-            // Cập nhật danh mục sản phẩm (nếu có)
-            if (request.Categories != null && request.Categories.Any())
             {
-                _context.ProductCategories.RemoveRange(product.ProductCategories); // Xóa danh mục cũ
+                return false; // The product does not exist
+            }
 
-                foreach (var category in request.Categories)
+            // Update product properties
+            product.Name = request.Name;
+            if (request.Src != null)
+            {
+                product.Src = await _fileStorageServices.UploadImageFileAsync(request.Src, "products");
+            }
+
+            if (request.PreImg != null)
+            {
+                product.PreImg = await _fileStorageServices.UploadImageFileAsync(request.PreImg, "products");
+            }
+
+            // Update product details
+            if (product.Detail != null)
+            {
+                product.Detail.Price = request.ProductDetailsRequest?.FirstOrDefault()?.Price ?? product.Detail.Price;
+                product.Detail.Description = request.ProductDetailsRequest?.FirstOrDefault()?.Description ?? product.Detail.Description;
+                product.Detail.detailDes = request.ProductDetailsRequest?.FirstOrDefault()?.detailDes ?? product.Detail.detailDes;
+                product.Detail.Stock = request.ProductDetailsRequest?.FirstOrDefault()?.Stock ?? product.Detail.Stock;
+                product.Detail.IsBestSeller = request.ProductDetailsRequest?.FirstOrDefault()?.IsBestSeller ?? product.Detail.IsBestSeller;
+                product.Detail.IsHotDeal = request.ProductDetailsRequest?.FirstOrDefault()?.IsHotDeal ?? product.Detail.IsHotDeal;
+                product.Detail.IsNew = request.ProductDetailsRequest?.FirstOrDefault()?.IsNew ?? product.Detail.IsNew;
+                product.Detail.Weight = request.ProductDetailsRequest?.FirstOrDefault()?.Weight ?? product.Detail.Weight;
+                product.Detail.Origin = request.ProductDetailsRequest?.FirstOrDefault()?.Origin ?? product.Detail.Origin;
+            }
+
+            // Update product categories
+            if (request.CategoryIDs != null)
+            {
+                // Remove existing categories
+                _context.ProductCategories.RemoveRange(product.ProductCategories);
+
+                // Add new categories
+                foreach (var categoryId in request.CategoryIDs)
                 {
-                    _context.ProductCategories.Add(new ProductCategory
+                    var productCategory = new ProductCategory()
                     {
                         ProductID = product.ProductID,
-                        CategoryID = category.CategoryID
-                    });
+                        CategoryID = categoryId
+                    };
+                    _context.ProductCategories.Add(productCategory);
                 }
             }
 
-            // Lưu thay đổi vào cơ sở dữ liệu
-            await _context.SaveChangesAsync();
-            return true;
-        }
+            // Save changes to the database
+            try
+            {
+                await _context.SaveChangesAsync(); // Use asynchronous save
+            }
+            catch (Exception ex)
+            {
+                // Handle the exception as needed
+                throw new Exception("Failed to update product in the database.", ex);
+            }
 
+            return true; // Update successful
+        }
 
         public async Task<bool> DeleteProductAsync(Guid productID)
         {

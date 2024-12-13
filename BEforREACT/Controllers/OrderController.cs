@@ -57,11 +57,11 @@ namespace BEforREACT.Controllers
 
         // Cập nhật trạng thái Order
         [HttpPut("changeStatus/{id}")]
-        public async Task<IActionResult> UpdateOrderStatus(Guid id, int status)
+        public async Task<IActionResult> UpdateOrderStatus(Guid id, [FromBody] int status)
         {
             var success = await _orderService.UpdateOrderStatusAsync(id, status);
-            if (!success) return NotFound("Order không tồn tại.");
-            return NoContent();
+            if (!success) Ok(new { status = false, message = "Cập nhật trạng thái thất bại." });
+            return Ok(new { status = true, message = "Cập nhật trạng thái thành công." });
         }
 
         // Xóa Order

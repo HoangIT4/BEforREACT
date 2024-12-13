@@ -226,30 +226,30 @@ namespace BEforREACT.Services
             return existingUser; // Trả về người dùng đã cập nhật
         }
 
-        public async Task<bool> ChangePassword(Guid userId, string currentPassword, string newPassword)
+        public async Task<bool> ChangePassword(ChangePasswordRequest request)
         {
             // Tìm người dùng trong cơ sở dữ liệu
-            var user = await _context.Users.FindAsync(userId);
+            var user = await _context.Users.FindAsync(request.UserId);
             if (user == null)
             {
                 return false; // Người dùng không tồn tại
             }
 
             // Kiểm tra mật khẩu cũ
-            var isValidPassword = await ValidatePassword(user.Email, currentPassword);
+            var isValidPassword = await ValidatePassword(user.Email, request.CurrentPassword);
             if (!isValidPassword)
             {
                 return false; // Mật khẩu cũ không đúng
             }
 
             // Kiểm tra độ dài mật khẩu mới hoặc các quy tắc khác nếu cần
-            if (string.IsNullOrEmpty(newPassword) || newPassword.Length < 6)
+            if (string.IsNullOrEmpty(request.NewPassword) || request.NewPassword.Length < 6)
             {
                 return false; // Mật khẩu mới không hợp lệ
             }
 
             // Mã hóa mật khẩu mới
-            user.Password = BCrypt.Net.BCrypt.HashPassword(newPassword);
+            user.Password = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
 
             // Cập nhật thời gian thay đổi
             user.UpdatedAt = DateTime.UtcNow;

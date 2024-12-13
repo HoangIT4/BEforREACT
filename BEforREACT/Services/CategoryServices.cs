@@ -33,7 +33,6 @@ namespace BEforREACT.Services
 
             };
             _context.Categories.Add(category);
-
             await _context.SaveChangesAsync();
             return true;
         }
@@ -59,7 +58,7 @@ namespace BEforREACT.Services
             {
                 CategoryID = existingCategory.CategoryID,
                 CategoryName = existingCategory.CategoryName,
-                CreatedAt = existingCategory.CreatedAt
+                //CreatedAt = existingCategory.CreatedAt
             };
         }
 

@@ -104,19 +104,32 @@ namespace BEforREACT.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = $"Lỗi: {ex.Message}" });
+                return StatusCode(500, new { success = false, message = $"Lỗi: {ex.Message}" });
             }
         }
 
         [HttpPatch("update/{productId}")]
-        public async Task<IActionResult> UpdateProduct(Guid productId, ProductsDetailDTO request)
+        public async Task<IActionResult> UpdateProduct(Guid productId, [FromForm] ProductCreateRequest request)
         {
             var result = await _productServices.UpdateProductAsync(productId, request);
             if (result)
-                return Ok(new { message = "Product updated successfully" });
+            {
+                return Ok(new
+                {
+                    success = true,
+                    message = "Thêm sản phẩm thành công"
+                });
+            }
             else
-                return NotFound(new { message = "Product not found" });
+            {
+                return Ok(new
+                {
+                    success = false,
+                    message = "Đã xảy ra lỗi khi thêm sản phẩm."
+                });
+            }
         }
+
 
         [HttpDelete("{productId}")]
         public async Task<IActionResult> DeleteProduct(Guid productId)

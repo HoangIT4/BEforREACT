@@ -64,7 +64,36 @@ public class CategoryController : ControllerBase
         {
             return StatusCode(500, $"Internal server error: {ex.Message}");
         }
+
+
     }
+    [HttpPatch("{id}")]
+    public async Task<IActionResult> UpdateCategory(Guid id, [FromBody] CategoryDTO categoryDTO)
+    {
+        try
+        {
+            var updatedBrand = await _categoryServices.UpdateCategory(id, categoryDTO);
+            return Ok(updatedBrand);
+        }
+        catch (ArgumentException)
+        {
+            return BadRequest();
+        }
+    }
+
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteCategory(Guid id)
+    {
+        var result = await _categoryServices.DeleteCategory(id);
+        if (!result)
+        {
+            return NotFound();
+        }
+
+        return NoContent();
+    }
+
 
 
 }
